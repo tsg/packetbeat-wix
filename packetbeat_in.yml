@@ -1,0 +1,20 @@
+product:
+  name: Packetbeat
+  upgrade_code: "75671f11-85ea-4922-8e95-7786693804d4"
+  version: 1.0.0-beta2
+  manufacturer: Elastic
+
+components:
+  - id: exe
+    fname: packetbeat.exe
+    source: packetbeat-windows-386.exe
+    service:
+      name: packetbeat
+      displayname: Packetbeat beta2
+      description: Packetbeat shipper
+  - id: conf
+    fname: packetbeat.yml
+    source: packetbeat.yml
+  - id: template
+    fname: packetbeat.template.json
+    source: packetbeat.template.json

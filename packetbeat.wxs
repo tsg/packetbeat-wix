@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  <Product Name='{{ product.name }}' Id='*' UpgradeCode='{{ product.upgrade_code }}'
+    Language='1033' Codepage='1252' Version='{{ product.version }}' Manufacturer='{{ product.manufacturer }}'>
+
+    <Package Id='*' Keywords='Installer' Description="{{ product.name }} {{ product.version }} Installer"
+      Manufacturer='{{ product.manufacturer }}'
+      InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+    <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
+
+    <Upgrade Id="{{ product.upgrade_code }}">
+      <UpgradeVersion Minimum="0.0.0" Maximum="{{ product.version }}" IncludeMinimum="yes" IncludeMaximum="yes"
+        OnlyDetect="no" Property="OLDERVERSIONBEINGUPGRADED"/>
+    </Upgrade>
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='ProgramFilesFolder' Name='PFiles'>
+        <Directory Id='INSTALLDIR' Name='{{ product.name }}'>
+          {% for file in components %}
+          <Component Id='{{ file.id }}' Guid='*'>
+            <File Id='{{ product.name }}-{{ file.id }}' Name='{{ file.fname }}' Source='$(var.SourceDir)/{{ file.source }}' KeyPath='yes'/>
+
+            {% if file.service is defined %}
+            <ServiceInstall Id="ServiceInstaller" 
+                                            Type="ownProcess"
+                                            Vital="yes"
+                                            Name="{{ file.service.name }}"
+                                            DisplayName="{{ file.service.displayname }}"
+                                            Description="{{ file.service.description }}"
+                                            Start="auto"
+                                            ErrorControl="ignore"
+                                            Interactive="no" />
+            <ServiceControl Id="ServiceController" Name="{{ file.service.name }}" Start="uninstall" Remove="uninstall" Stop="uninstall" Wait="no">
+              <ServiceArgument>-c c:\Program Files (x86)\Packetbeat\packetbeat.yml"</ServiceArgument>
+            </ServiceControl>
+            {% endif %}
+          </Component>
+          {% endfor %}
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <InstallExecuteSequence>
+      <RemoveExistingProducts After="InstallValidate"/>
+    </InstallExecuteSequence>
+
+    <Feature Id='Complete' Level='1'>
+      {% for file in components %}
+      <ComponentRef Id='{{ file.id }}' />
+      {% endfor %}
+    </Feature>
+
+  </Product>
+</Wix>

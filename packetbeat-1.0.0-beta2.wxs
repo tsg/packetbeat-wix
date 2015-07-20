@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  <Product Name='Packetbeat' Id='*' UpgradeCode='75671f11-85ea-4922-8e95-7786693804d4'
+    Language='1033' Codepage='1252' Version='1.0.0-beta2' Manufacturer='Elastic'>
+
+    <Package Id='*' Keywords='Installer' Description="Packetbeat 1.0.0-beta2 Installer"
+      Manufacturer='Elastic'
+      InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+    <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
+
+    <Upgrade Id="75671f11-85ea-4922-8e95-7786693804d4">
+      <UpgradeVersion Minimum="0.0.0" Maximum="1.0.0-beta2" IncludeMinimum="yes" IncludeMaximum="yes"
+        OnlyDetect="no" Property="OLDERVERSIONBEINGUPGRADED"/>
+    </Upgrade>
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='ProgramFilesFolder' Name='PFiles'>
+        <Directory Id='INSTALLDIR' Name='Packetbeat'>
+          
+          <Component Id='exe' Guid='*'>
+            <File Id='Packetbeat-exe' Name='packetbeat.exe' Source='$(var.SourceDir)/packetbeat-windows-386.exe' KeyPath='yes'/>
+
+            
+            <ServiceInstall Id="ServiceInstaller" 
+                                            Type="ownProcess"
+                                            Vital="yes"
+                                            Name="packetbeat"
+                                            DisplayName="Packetbeat beta2"
+                                            Description="Packetbeat shipper"
+                                            Start="auto"
+                                            ErrorControl="ignore"
+                                            Interactive="no" />
+            <ServiceControl Id="ServiceController" Name="packetbeat" Start="uninstall" Remove="uninstall" Stop="uninstall" Wait="no">
+              <ServiceArgument>-c c:\Program Files (x86)\Packetbeat\packetbeat.yml"</ServiceArgument>
+            </ServiceControl>
+            
+          </Component>
+          
+          <Component Id='conf' Guid='*'>
+            <File Id='Packetbeat-conf' Name='packetbeat.yml' Source='$(var.SourceDir)/packetbeat.yml' KeyPath='yes'/>
+
+            
+          </Component>
+          
+          <Component Id='template' Guid='*'>
+            <File Id='Packetbeat-template' Name='packetbeat.template.json' Source='$(var.SourceDir)/packetbeat.template.json' KeyPath='yes'/>
+
+            
+          </Component>
+          
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <InstallExecuteSequence>
+      <RemoveExistingProducts After="InstallValidate"/>
+    </InstallExecuteSequence>
+
+    <Feature Id='Complete' Level='1'>
+      
+      <ComponentRef Id='exe' />
+      
+      <ComponentRef Id='conf' />
+      
+      <ComponentRef Id='template' />
+      
+    </Feature>
+
+  </Product>
+</Wix>
